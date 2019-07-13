@@ -30,7 +30,7 @@ class Matrix {
     constructor(s: String) {
         val lines = s.dropLastWhile { it == '\n' }.split("\n")
         rows = lines.size
-        cols = lines[0].split(" ", "\t").size
+        cols = lines[0].dropLastWhile { it == '\t' || it == ' ' }.split(" ", "\t").size
 
         if (s.contains("/")) {
             mode = MatrixMode.mFraction
@@ -65,6 +65,9 @@ class Matrix {
 
     override operator fun equals(other: Any?): Boolean {
         return if (other is Matrix) {
+            if (other.rows != rows || other.cols != cols)
+                return false
+
             for (i in 0 until rows){
                 for (j in 0 until cols) {
                     if (other.a[i,j] != a[i,j]){
@@ -76,6 +79,10 @@ class Matrix {
         }
         else
             false
+    }
+
+    override fun hashCode(): Int {
+        return toString().hashCode()
     }
 
     operator fun get(i: Int): Any {
@@ -105,28 +112,19 @@ class Matrix {
         return result
     }
 
-    fun asString(): String {
+    override fun toString(): String {
         var s = ""
-        if (mode == MatrixMode.mDouble) {
-            for (i in 0 until rows) {
-                for (j in 0 until cols)
-                    s += (a[i, j] as Double).toString() + ' '
 
-                if (i != rows - 1)
-                    s += '\n'.toString()
-            }
-        } else {
-            for (i in 0 until rows) {
-                for (j in 0 until cols)
-                    s += (a[i, j] as Fraction).toString() + ' '
+        for (i in 0 until rows) {
+            for (j in 0 until cols)
+                s += a[i, j].toString() + ' '
+            s = s.dropLast(1)
 
-                if (i != rows - 1)
-                    s += '\n'.toString()
-            }
+            if (i != rows - 1)
+                s += '\n'.toString()
         }
         return s
     }
-
 
     fun getFractionMatrix(m: Matrix): Matrix {
         if (mode == MatrixMode.mFraction)
@@ -203,25 +201,21 @@ class Matrix {
     }
 
     operator fun times(m: Matrix): Matrix {
-        val result = copy()
+        if (cols != m.rows)
+            throw Exception("Matrix dimension mismatch")
 
-        var i: Int = 0
-        var j: Int
+        val result = Matrix(rows, m.cols, mode)
+
         var k: Int
 
-        with (result)  {
-            while (i < rows) {
-                j = 0
-                while (j < cols) {
-                    a[i,j] = 0.0
-                    k = 0
-                    while (k < cols) {
-                        a[i,j] += a[i,k] * m[k,j]
-                        k++
-                    }
-                    j++
+        for (i in 0 until result.rows) {
+            for (j in 0 until result.cols) {
+                result[i, j] = initNumber()
+                k = 0
+                while (k < cols) {
+                    result[i, j] += a[i, k] * m[k, j]
+                    k++
                 }
-                i++
             }
         }
 
@@ -248,7 +242,6 @@ class Matrix {
             }
         }
     }
-
 
     fun LUDecompose(a: Matrix): Pair<Matrix, Matrix> {
         val u = Matrix(a.rows, a.cols, a.mode)
@@ -385,12 +378,17 @@ class Matrix {
     }
 }
 
-public fun identity(size: Int, mode: MatrixMode): Matrix {
+fun identity(size: Int, mode: MatrixMode): Matrix {
     val m = Matrix(size, size, mode)
-
-    for (i in 0 until size) {
-        m[i,i] = 1
+    when (mode) {
+        MatrixMode.mDouble -> for (i in 0 until size) {
+            m[i, i] = 1.0
+        }
+        MatrixMode.mFraction -> for (i in 0 until size) {
+            m[i, i] = Fraction(1, 1)
+        }
     }
+
 
     return m
 }

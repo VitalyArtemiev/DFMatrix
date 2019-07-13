@@ -1,6 +1,12 @@
 package matrix
 
-class IntList {
+class IntList(vararg values: Int) {
+    init {
+        for (value in values) {
+            add(value)
+        }
+    }
+
     var memberCount = 0
     internal var root: IntMember? = null
 

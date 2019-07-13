@@ -45,7 +45,7 @@ class Fraction: Number {
     var num: Int = 0
     var den: Int = 0
 
-    var Sign = 1
+    var sign = 1
 
     val isZero: Boolean
         get() = num == 0
@@ -54,8 +54,8 @@ class Fraction: Number {
         num = 0
         den = 1
 
-        numerator = factorize(num)
-        denominator = factorize(den)
+        numerator = IntList(0)
+        denominator = IntList(1)
     }
 
     //@Throws(NumberFormatException::class)
@@ -90,7 +90,10 @@ class Fraction: Number {
     }
 
     private fun factorize(number: Int): IntList {
-        Sign *= sign(number.toFloat()).toInt()
+        sign *= number.sign
+        if (sign == 0)
+            sign = 1
+
         var n = abs(number)
 
         val factors = IntList()
@@ -119,19 +122,19 @@ class Fraction: Number {
         val result = Fraction()
         result.num = num
         result.den = den
-        result.Sign = Sign
+        result.sign = sign
         result.numerator = numerator.copy()
         result.denominator = denominator.copy()
         return result
     }
 
-    override fun equals(f: Any?): Boolean {
-        return when (f) {
+    override fun equals(other: Any?): Boolean {
+        return when (other) {
             is Fraction -> {
-                num == f.num && den == f.den
+                num == other.num && den == other.den
             }
             is Int -> {
-                num == f && den == 1
+                num == other && den == 1
             }
             else -> {
                 false
@@ -141,7 +144,7 @@ class Fraction: Number {
 
     fun negate() {
         num *= -1
-        Sign *= -1
+        sign *= -1
         //numerator.addSorted(-1);
         //simplify(); todo: possible error
     }
@@ -236,7 +239,7 @@ class Fraction: Number {
             numerator.add(0)
             denominator.clear()
             denominator.add(1)
-            Sign = 1
+            sign = 1
             return
         }
 
@@ -329,14 +332,14 @@ class Fraction: Number {
 
     fun simplify() {
         if (den < 0) {
-            Sign *= -1
+            sign *= -1
             num *= -1
             den = abs(den)
         }
 
-        if (num * Sign < 0) {
+        if (num * sign < 0) {
             println("Warning: sign mismatch!!!")//todo: triggers in tests. problem?
-            Sign *= -1
+            sign *= -1
         }
 
         if (num == 1 || den == 1) {
@@ -347,56 +350,56 @@ class Fraction: Number {
             num = 1
             den = 1
             numerator.clear()
-            denominator.clear()
             numerator.add(1)
+            denominator.clear()
             denominator.add(1)
             return
         }
 
-        var CN = numerator.root   //current
-        var CD = denominator.root
-        var PN: IntList.IntMember? = null             //previous
-        var PD: IntList.IntMember? = null
+        var cn = numerator.root   //current
+        var cd = denominator.root
+        var pn: IntList.IntMember? = null             //previous
+        var pd: IntList.IntMember? = null
 
-        while (CN != null) {
-            while (CD != null && CD.value < CN.value) {
-                if (CD.value < 0) {
-                    //Sign *= -1; no need
-                    CD.value = abs(CD.value)
+        while (cn != null) {
+            while (cd != null && cd.value < cn.value) {
+                if (cd.value < 0) {
+                    //sign *= -1; no need
+                    cd.value = abs(cd.value)
                 }
 
-                PD = CD
-                CD = CD.next
+                pd = cd
+                cd = cd.next
             }
 
-            if (CD == null) {
+            if (cd == null) {
                 break
             }
 
-            if (CN.value < 0) {
-                //Sign *= -1; no need
-                CN.value = abs(CN.value)
+            if (cn.value < 0) {
+                //sign *= -1; no need
+                cn.value = abs(cn.value)
             }
 
-            if (CN.value == CD.value) {
-                if (PN != null) {
-                    numerator.deleteNext(PN)
-                    CN = PN.next
+            if (cn.value == cd.value) {
+                if (pn != null) {
+                    numerator.deleteNext(pn)
+                    cn = pn.next
                 } else {
                     numerator.deleteFirst()
-                    CN = numerator.root
+                    cn = numerator.root
                 }
 
-                if (PD != null) {
-                    denominator.deleteNext(PD)
-                    CD = PD.next
+                if (pd != null) {
+                    denominator.deleteNext(pd)
+                    cd = pd.next
                 } else {
                     denominator.deleteFirst()
-                    CD = denominator.root
+                    cd = denominator.root
                 }
             } else {
-                PN = CN
-                CN = CN.next
+                pn = cn
+                cn = cn.next
             }
         }
 
@@ -407,7 +410,7 @@ class Fraction: Number {
             denominator.add(1)
         }
 
-        num = Sign * numerator.product()
+        num = sign * numerator.product()
         den = denominator.product()
     }
 
@@ -426,7 +429,7 @@ class Fraction: Number {
     }
 
     fun toStringFactorized(): String {
-        return (if (Sign < 0) "-" else "") + numerator.toString() + "/" + denominator.toString()
+        return (if (sign < 0) "-" else "") + numerator.toString() + "/" + denominator.toString()
     }
 
     companion object {

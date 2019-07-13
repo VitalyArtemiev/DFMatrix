@@ -123,16 +123,19 @@ class TestFraction {
         assertEquals("41/24", c.toString(), "")
         assertEquals("5/6", a.toString(), "")
         assertEquals("7/8", b.toString(), "")
+        assertEquals(a + b, b + a)
 
         c = a * b
         assertEquals("35/48", c.toString(), "")
         assertEquals("5/6", a.toString(), "")
         assertEquals("7/8", b.toString(), "")
+        assertEquals(a * b, b * a)
 
         c = a - b
         assertEquals("-1/24", c.toString(), "")
         assertEquals("5/6", a.toString(), "")
         assertEquals("7/8", b.toString(), "")
+        assertEquals(a - b, -b + a)
 
         c = a / b
         assertEquals("20/21", c.toString(), "")
@@ -174,6 +177,36 @@ class TestFraction {
         c = Fraction.valueOf("3/5")
         c = (a - b) / c
         assertEquals("-1/6", c.toString(), "")
+
+        a = Fraction(1, 2)
+        b = Fraction(2, 3)
+        c = Fraction(3, 4)
+        d = Fraction(4, 5)
+        var I = Fraction(1, 1)
+        var O = Fraction()
+
+        e = a * I + b * O
+        assertEquals(a, e)
+        e = I * a + O * b
+        assertEquals(a, e)
+
+        e = a * O + b * I
+        assertEquals(b, e)
+        e = O * a + I * b
+        assertEquals(O * a, O)
+        assertEquals(I * b, b)
+        assertEquals(Fraction(2, 3), Fraction() + Fraction(2, 3))
+        assertEquals(b, e)
+
+        e = c * I + d * O
+        assertEquals(c, e)
+        e = I * c + O * d
+        assertEquals(c, e)
+
+        e = c * O + d * I
+        assertEquals(d, e)
+        e = O * c + I * d
+        assertEquals(d, e)
 
         var dd: Double = 15.67
         println(dd.toByte())
