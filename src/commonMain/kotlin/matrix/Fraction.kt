@@ -129,7 +129,7 @@ class Fraction: Number {
         return result
     }
 
-    override fun equals(other: Any?): Boolean {
+    override fun equals(other: Any?): Boolean { //cannot make it an operator. possible bug
         return when (other) {
             is Fraction -> {
                 num == other.num && den == other.den
@@ -434,7 +434,6 @@ class Fraction: Number {
     }
 
     companion object {
-
         fun valueOf(s: String): Fraction {
             try {
                 return if (s.contains("/")) {
@@ -448,12 +447,11 @@ class Fraction: Number {
                     d = elements[1].toInt()
                     Fraction(n, d)
                 } else {
-                    Fraction(s.toInt(), 1)
+                    Fraction(s.toInt())
                 }
             } catch (e: NumberFormatException) {
                 throw NumberFormatException("Malformed fraction")
             }
-
         }
     }
 }

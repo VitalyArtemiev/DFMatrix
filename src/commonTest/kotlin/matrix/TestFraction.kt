@@ -17,6 +17,12 @@ class TestFraction {
         f = Fraction(30, 30)
         assertTrue(f.equals(1))
 
+        assertEquals(Fraction(42), Fraction(42, 1))
+        assertEquals(Fraction(42), Fraction(84, 2))
+        assertEquals(Fraction(42), Fraction(-84, -2))
+        assertEquals(Fraction(-7), Fraction(-7, 1))
+        assertEquals(Fraction(-7), Fraction(7, -1))
+
         var a = Fraction()
         assertEquals("0/1", a.toString(), "Fraction constructor failed")
 

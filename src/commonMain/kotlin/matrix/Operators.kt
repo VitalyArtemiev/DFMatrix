@@ -71,3 +71,11 @@ fun Number.isZero(): Boolean {
 
     throw Exception("Not implemented")
 }
+
+fun String.toFraction(): Fraction {
+    return Fraction.valueOf(this)
+}
+
+fun String.toMatrix(): Matrix {
+    return Matrix(this)
+}
