@@ -166,6 +166,41 @@ class TestMatrix {
 
         m1 = Matrix(m2.toString())
         assertEquals(m2, m1)
+
+        m2.swapRow(1, 2)
+        assertEquals("-1.0 -2.0 3.0\n0.0 0.0 0.0\n4.0 8.0 -12.0", m2.toString())
+        m2.swapRow(0, 1)
+        assertEquals("0.0 0.0 0.0\n-1.0 -2.0 3.0\n4.0 8.0 -12.0", m2.toString())
+
+        var fm = I.toFractionMatrix()
+        assertEquals("1/1 0/1 0/1\n0/1 1/1 0/1\n0/1 0/1 1/1", fm.toString())
+
+        fm = m2.toFractionMatrix()
+        assertEquals("0/1 0/1 0/1\n-1/1 -2/1 3/1\n4/1 8/1 -12/1", fm.toString())
+
+        assertEquals(I, I.LUDecompose().first)
+        assertEquals(I, I.LUDecompose().second)
+
+        val (L, U) = m2.LUDecompose()
+        //assertEquals("1.0 0.0 0.0\n0.0 1.0 0.0\n-4.0 0.0 1.0", L.toString())
+        //assertEquals("-1.0 -2.0 3.0\n0.0 0.0 0.0\n0.0 0.0 0.0", U.toString())
+
+        var det = I.det()
+        assertEquals(1.0, det)
+
+        m = Matrix("1 2 3\n4 5 6\n7 8 9")
+        det = m.det()
+
+        /*var d1: Double = 0.0 //THE WTF BLOCK
+        var d2: Double = -0.0
+        assertTrue(0.0 == -0.0)
+        assertTrue(d1 == d2)
+        assertTrue(d1.equals(d2))
+        assertEquals(d1, d2)
+        assertTrue(0.0.equals(-0.0))
+        assertEquals(0.0, -0.0)*/
+
+        assertEquals(0.0, det)
     }
 
     @Test
@@ -178,6 +213,12 @@ class TestMatrix {
         m = Matrix("1/2 2/3\n3/4 4/5")
         assertEquals(m, m * I)
 
+        assertEquals("3/4 13/15\n39/40 57/50", (m * m).toString())
+
+        assertEquals("3/2 2/3\n3/4 9/5", (m + I).toString())
+
+        assertEquals("-1/2 2/3\n3/4 -1/5", (m - I).toString())
+
         m = Matrix("1/2 2/3 3/4\n4/5 5/6 6/7")
         var m1 = Matrix(m.toString())
         assertEquals(m, m1)
@@ -185,5 +226,7 @@ class TestMatrix {
         I = identity(3, MatrixMode.mFraction)
         assertEquals("1/1 0/1 0/1\n0/1 1/1 0/1\n0/1 0/1 1/1", I.toString())
         assertEquals(m, m * I)
+
+
     }
 }

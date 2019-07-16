@@ -63,6 +63,7 @@ class Fraction: Number {
         this.num = num
         this.den = den
 
+        //require(den != 0) {}
         if (this.den == 0) {
             throw NumberFormatException("denominator cannot be null")
         }

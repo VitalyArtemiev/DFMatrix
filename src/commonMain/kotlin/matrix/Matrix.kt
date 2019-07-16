@@ -2,8 +2,6 @@ package matrix
 
 import kotlin.math.pow
 
-//import android.widget.EditText
-
 enum class MatrixMode { mDouble, mFraction }
 
 class Matrix {
@@ -126,17 +124,16 @@ class Matrix {
         return s
     }
 
-    fun getFractionMatrix(m: Matrix): Matrix {
+    fun toFractionMatrix(): Matrix {
         if (mode == MatrixMode.mFraction)
-            return this.copy()
+            return copy()
 
-        val fm = Matrix(m.rows, m.cols, MatrixMode.mFraction)
-        val rm = m //as RealMatrix
+        val fm = Matrix(rows, cols, MatrixMode.mFraction)
 
-        for (i in 0 until m.rows)
-            for (j in 0 until m.cols) {
-                val iPart = (rm.a[i,j] as Double).toInt()
-                var fPart = rm.a[i,j] as Double - iPart//todo: write own number operator?
+        for (i in 0 until rows)
+            for (j in 0 until cols) {
+                val iPart = (a[i, j] as Double).toInt()
+                var fPart = a[i, j] as Double - iPart//todo: write own number operator?
                 if (fPart == 0.0) {
                     fm.a[i,j] = Fraction(iPart, 1)
                 } else {
@@ -152,15 +149,23 @@ class Matrix {
                     fm.a[i,j] = Fraction(num, den)
                 }
             }
-
         return fm
     }
 
     operator fun unaryMinus(): Matrix {
-        return invert()
+        val result = Matrix(this.rows, this.cols)
+
+        for (i in 0 until result.rows) {
+            for (j in 0 until result.cols) {
+                result.a[i, j] = -this.a[i, j]
+            }
+        }
+        return result
     }
 
     operator fun plus(m: Matrix): Matrix {
+        require(rows == m.rows && cols == m.cols) { "Matrix size mismatch during sum" }
+
         val result = copy()
 
         for (i in 0 until rows)
@@ -181,6 +186,8 @@ class Matrix {
     }
 
     operator fun minus(m: Matrix): Matrix {
+        require(rows == m.rows && cols == m.cols) { "Matrix size mismatch during sum" }
+
         val result = copy()
 
         for (i in 0 until rows)
@@ -201,8 +208,7 @@ class Matrix {
     }
 
     operator fun times(m: Matrix): Matrix {
-        if (cols != m.rows)
-            throw Exception("Matrix dimension mismatch")
+        require(cols == m.rows) { "Matrix dimension mismatch" }
 
         val result = Matrix(rows, m.cols, mode)
 
@@ -211,10 +217,8 @@ class Matrix {
         for (i in 0 until result.rows) {
             for (j in 0 until result.cols) {
                 result[i, j] = initNumber()
-                k = 0
-                while (k < cols) {
+                for (k in 0 until cols) {
                     result[i, j] += a[i, k] * m[k, j]
-                    k++
                 }
             }
         }
@@ -231,7 +235,7 @@ class Matrix {
 
         return result
     }
-    
+
     fun initNumber(): Number {
         return when (mode){
             MatrixMode.mDouble -> {
@@ -243,118 +247,88 @@ class Matrix {
         }
     }
 
-    fun LUDecompose(a: Matrix): Pair<Matrix, Matrix> {
-        val u = Matrix(a.rows, a.cols, a.mode)
-        val l = Matrix(a.rows, a.cols, a.mode)
+    fun initNumber(v: Int): Number {
+        return when (mode) {
+            MatrixMode.mDouble -> {
+                v.toDouble() //as Double - no cast needed
+            }
+            MatrixMode.mFraction -> {
+                Fraction(v, 1)
+            }
+        }
+    }
 
-        var i: Int = 0
-        var j: Int
-        var k: Int
+    fun LUDecompose(): Pair<Matrix, Matrix> {
+        val u = Matrix(rows, cols, mode)
+        val l = Matrix(rows, cols, mode)
 
-        while (i < l.rows) {
-            u.a[0,i] = a.a[0,i]
-            l.a[i,i] = 1.0
-            i++
+        for (i in 0 until l.rows) {
+            u.a[0, i] = a[0, i]
+            l.a[i, i] = initNumber(1)
         }
 
-        i = 0
-        while (i < u.rows) {
-            j = i
-            while (j < u.rows) {
+        for (i in 0 until u.rows) {
+            for (j in 0 until u.rows) {
                 var s = initNumber()
-                k = 0
-                while (k < i) {
+                for (k in 0 until i) {
                     s += l.a[i,k] * u.a[k,j]
-                    k++
                 }
-                u.a[i,j] = a.a[i,j] - s
-                j++
+                u.a[i, j] = a[i, j] - s
             }
 
-            j = i + 1
-            while (j < u.rows) {
+            for (j in i + 1 until u.rows) {
                 var s = initNumber()
-                k = 0
-                while (k < i) {
+                for (k in 0 until i) {
                     s += l.a[j,k] * u.a[k,i]
-                    k++
                 }
 
-                if (u.a[i,i] != 0.0)
-                    l.a[j,i] = (a.a[j,i] - s) / u.a[i,i]
+                if (!u.a[i, i].isZero())
+                    l.a[j, i] = (a[j, i] - s) / u.a[i, i]
                 else
-                    l.a[j,i] = 1.0 //???
-                j++
+                    l.a[j, i] = initNumber(1) //???
             }
-            i++
         }
 
-        return Pair(u, l)
+        return Pair(l, u)
     }
 
     fun det(): Number {
+        check(cols == rows) { "Square matrix required" }
         val a: Matrix = this.copy()
-        var i: Int = 0
-        var j: Int
-        var k: Int
 
-        while (i < a.cols)
+        for (i in 0 until a.cols)
         //this ignores extra rows
         {
-            j = i
-            while (j < a.cols) {
+            for (j in i until a.cols) {
                 var s = initNumber()
-                k = 0
-                while (k < i) {
+                for (k in 0 until i) {
                     s += a.a[i,k] * a.a[k,j]
-                    k++
                 }
                 a.a[i,j] = a.a[i,j] - s
-                j++
             }
 
-            j = i + 1
-            while (j < a.cols) {
+            for (j in i + 1 until a.cols) {
                 var s = initNumber()
-                k = 0
-                while (k < i) {
+                for (k in 0 until i) {
                     s += a.a[j,k] * a.a[k,i]
-                    k++
                 }
 
-                if (a.a[i,i] != 0.0)
+                if (!a.a[i, i].isZero())
                     a.a[j,i] = (a.a[j,i] - s) / a.a[i,i]
                 else
-                    return 0.toDouble()
-                j++
+                    return initNumber()
             }
-            i++
         }
 
-        var result = initNumber()
+        var result = initNumber(1)
 
-        i = 0
-        while (i < a.cols) {
+        for (i in 0 until a.cols) {
             result *= a.a[i,i]
-            i++
         }
-        return result
-    }
 
-    fun invert(): Matrix {
-        val result = Matrix(this.rows, this.cols)
-        var i: Int = 0
-        var j: Int
+        if (result == -0.0) //apparently -0.0 != +0.0 but only sometimes
+            result = 0.0
 
-        while (i < result.rows) {
-            j = 0
-            while (j < result.cols) {
-                result.a[i,j] = -this.a[i,j]
-                j++
-            }
-
-            i++
-        }
         return result
     }
 
@@ -388,7 +362,5 @@ fun identity(size: Int, mode: MatrixMode): Matrix {
             m[i, i] = Fraction(1, 1)
         }
     }
-
-
     return m
 }

@@ -61,3 +61,13 @@ operator fun Number.div(a: Number): Number {
 
     throw Exception("Not implemented")
 }
+
+fun Number.isZero(): Boolean {
+    if (this is Fraction)
+        return isZero
+
+    if (this is Double)
+        return this == 0.0
+
+    throw Exception("Not implemented")
+}
