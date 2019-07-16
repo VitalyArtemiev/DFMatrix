@@ -59,7 +59,7 @@ class Fraction: Number {
     }
 
     //@Throws(NumberFormatException::class)
-    constructor(num: Int, den: Int) {
+    constructor(num: Int, den: Int = 1) {
         this.num = num
         this.den = den
 

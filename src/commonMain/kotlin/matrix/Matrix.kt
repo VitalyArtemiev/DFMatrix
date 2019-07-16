@@ -96,9 +96,9 @@ class Matrix {
     }
 
     fun swapRow(r1: Int, r2: Int) {
-        val a = a[r2]
-        this.a[r2] = this.a[r1]
-        this.a[r1] = a
+        val t = a[r2]
+        a[r2] = a[r1]
+        a[r1] = t
         /*for i= 0 to Col - 1 do
   a[r1, i]*= -1; //change sign so to not change det  */
     }
@@ -153,11 +153,11 @@ class Matrix {
     }
 
     operator fun unaryMinus(): Matrix {
-        val result = Matrix(this.rows, this.cols)
+        val result = Matrix(rows, cols, mode)
 
         for (i in 0 until result.rows) {
             for (j in 0 until result.cols) {
-                result.a[i, j] = -this.a[i, j]
+                result.a[i, j] = -a[i, j]
             }
         }
         return result
@@ -170,7 +170,7 @@ class Matrix {
 
         for (i in 0 until rows)
             for (j in 0 until cols) {
-                result.a[i, j] = a[i, j] + m[i,j]
+                result.a[i, j] += m[i, j]
             }
         return result
     }
@@ -180,7 +180,7 @@ class Matrix {
 
         for (i in 0 until rows)
             for (j in 0 until cols) {
-                result.a[i, j] = a[i, j] + n
+                result.a[i, j] += n
             }
         return result
     }
@@ -192,7 +192,7 @@ class Matrix {
 
         for (i in 0 until rows)
             for (j in 0 until cols) {
-                result.a[i, j] = a[i, j] - m[i,j]
+                result.a[i, j] -= m[i, j]
             }
         return result
     }
@@ -202,7 +202,7 @@ class Matrix {
 
         for (i in 0 until rows)
             for (j in 0 until cols) {
-                result.a[i, j] = a[i, j] + n
+                result.a[i, j] -= n
             }
         return result
     }
@@ -211,8 +211,6 @@ class Matrix {
         require(cols == m.rows) { "Matrix dimension mismatch" }
 
         val result = Matrix(rows, m.cols, mode)
-
-        var k: Int
 
         for (i in 0 until result.rows) {
             for (j in 0 until result.cols) {
@@ -226,12 +224,12 @@ class Matrix {
         return result
     }
 
-    operator fun times(m: Number): Matrix {
+    operator fun times(n: Number): Matrix {
         val result = copy()
 
         for (i in 0 until rows)
             for (j in 0 until cols)
-                result.a[i,j] = a[i,j] * m
+                result.a[i, j] *= n
 
         return result
     }
@@ -294,7 +292,7 @@ class Matrix {
 
     fun det(): Number {
         check(cols == rows) { "Square matrix required" }
-        val a: Matrix = this.copy()
+        val a: Matrix = copy()
 
         for (i in 0 until a.cols)
         //this ignores extra rows
@@ -333,22 +331,14 @@ class Matrix {
     }
 
     fun transpose(): Matrix {
-        val r = Matrix(this.cols, this.rows)
+        val result = Matrix(cols, rows)
 
-        var i = 0
-        var j: Int
-
-        while (i < r.rows) {
-
-            j = 0
-            while (j < r.cols) {
-                r.a[i,j] = this.a[j,i]
-                j++
+        for (i in 0 until result.rows) {
+            for (j in 0 until result.cols) {
+                result.a[i, j] = a[j, i]
             }
-
-            i++
         }
-        return r
+        return result
     }
 }
 

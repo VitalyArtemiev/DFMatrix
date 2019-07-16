@@ -201,11 +201,24 @@ class TestMatrix {
         assertEquals(0.0, -0.0)*/
 
         assertEquals(0.0, det)
+
+        assertEquals(I, I.transpose())
+        assertEquals(m, m.transpose().transpose())
+        assertEquals("1.0 4.0 7.0\n2.0 5.0 8.0\n3.0 6.0 9.0", m.transpose().toString())
+
+        m = Matrix("-1\n4\n0")
+        m1 = Matrix("-1 4 0")
+        assertEquals(m, m1.transpose())
+
+        m = Matrix("1 2 3 4\n5 6 7 8")
+        m1 = Matrix("1 5\n2 6\n3 7\n4 8")
+        assertEquals(m, m1.transpose())
+        assertEquals(m, m.transpose().transpose())
     }
 
     @Test
     fun testFractionMatrix() {
-        var m = Matrix("1/1 2/1\n3/1 4/1")
+        var m = Matrix("1/1 2/1\t\t\n3/1\t4/1  ")
         var I = identity(2, MatrixMode.mFraction)
         assertEquals("1/1 0/1\n0/1 1/1", I.toString())
         assertEquals(m, m * I)
@@ -227,6 +240,14 @@ class TestMatrix {
         assertEquals("1/1 0/1 0/1\n0/1 1/1 0/1\n0/1 0/1 1/1", I.toString())
         assertEquals(m, m * I)
 
+        m = I + Fraction(1)
+        assertEquals("2/1 1/1 1/1\n1/1 2/1 1/1\n1/1 1/1 2/1", m.toString())
 
+        m = I - Fraction(1)
+        assertEquals("0/1 -1/1 -1/1\n-1/1 0/1 -1/1\n-1/1 -1/1 0/1", m.toString())
+
+        assertEquals(I + Fraction(1), Fraction(1) + I)
+        assertEquals(I - Fraction(1), -Fraction(1) + I)
+        assertEquals(Fraction(1) - I, -I + Fraction(1))
     }
 }
