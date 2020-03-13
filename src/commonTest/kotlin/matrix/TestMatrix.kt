@@ -181,7 +181,15 @@ class TestMatrix {
         assertEquals(I, I.LUDecompose().first)
         assertEquals(I, I.LUDecompose().second)
 
-        val (L, U) = m2.LUDecompose()
+        val (L, U) = m2.lud()
+
+        val r = m2.LUPDecompose()
+
+        println("LUP")
+
+        println(r.toString())
+
+        //assertEquals(L * U, m2)
         //assertEquals("1.0 0.0 0.0\n0.0 1.0 0.0\n-4.0 0.0 1.0", L.toString())
         //assertEquals("-1.0 -2.0 3.0\n0.0 0.0 0.0\n0.0 0.0 0.0", U.toString())
 
@@ -201,6 +209,35 @@ class TestMatrix {
         assertEquals(0.0, -0.0)*/
 
         assertEquals(0.0, det)
+
+        m1 = Matrix("1 2 4\n4 5 6\n7 8 9")
+        det = m1.det()
+        assertEquals(-3.0, det)
+
+        m1 = Matrix("1 2 4\n4 -5 6\n7 8 9")
+        det = m1.det()
+
+        var d: Double = 187.0
+        assertEquals(d, det)
+
+        m1 = Matrix("1 2\n3 4")
+        det = m1.det()
+
+        assertEquals(-2.0, det)
+
+        m1 = Matrix(
+            "1\t2\t3\t4\t5\t6\n" +
+                    "-1\t-2\t3\t5\t4\t3\n" +
+                    "4\t8\t-12\t1\t3\t2\n" +
+                    "4\t4\t3\t2\t41\t1\n" +
+                    "9\t56\t8\t3\t1\t4\n" +
+                    "0\t5\t7\t34\t2\t6"
+        )
+        //det = m1.det()
+
+        assertEquals(4369152.0, det)
+
+
 
         assertEquals(I, I.transpose())
         assertEquals(m, m.transpose().transpose())
@@ -249,5 +286,18 @@ class TestMatrix {
         assertEquals(I + Fraction(1), Fraction(1) + I)
         assertEquals(I - Fraction(1), -Fraction(1) + I)
         assertEquals(Fraction(1) - I, -I + Fraction(1))
+        assertEquals(-Fraction(1) - I, -I - Fraction(1))
+
+        m1 = Matrix(
+            "1/1\t2\t3\t4\t5\t6\n" +
+                    "-1\t-2\t3\t5\t4\t3\n" +
+                    "4\t8\t-12\t1\t3\t2\n" +
+                    "4\t4\t3\t2\t41\t1\n" +
+                    "9\t56\t8\t3\t1\t4\n" +
+                    "0\t5\t7\t34\t2\t6"
+        )
+        var det = m1.det()
+
+        assertEquals(Fraction(4369152, 1), det)
     }
 }
